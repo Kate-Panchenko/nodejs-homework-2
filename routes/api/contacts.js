@@ -10,9 +10,7 @@ router.get("/", async (req, res, next) => {
 		const result = await contactsService.listContacts();
 		res.json(result);
 	} catch (error) {
-		res.status(500).json({
-			message: "Server error",
-		});
+		next(error);
 	}
 });
 
@@ -25,24 +23,33 @@ router.get("/:contactId", async (req, res, next) => {
 		}
 		res.json(result);
 	} catch (error) {
-		const { status = 500, message = "Server error" } = error;
-		res.status(status).json({
-			message,
-		});
+		next(error);
 	}
 });
 
 router.post("/", async (req, res, next) => {
-	const result = await cotacts.addContact(req.body);
+	const result = await contactsService.addContact(req.body);
 	res.status(201).json(result);
 });
 
 router.delete("/:contactId", async (req, res, next) => {
-	res.json({ message: "template message" });
+	const { contactId } = req.params;
+	const result = await contactsService.removeContact(contactId);
+	if (!result) {
+		throw HttpError(404, "Not Found");
+	}
+	res.status(200).json({
+		message: "Delete successful",
+	});
 });
 
 router.put("/:contactId", async (req, res, next) => {
-	res.json({ message: "template message" });
+	const { contactId } = req.params;
+	const result = await contactsService.updateContact(contactId, req.body);
+	if (!result) {
+		throw HttpError(404, "Not Found");
+	}
+	res.json(result);
 });
 
 module.exports = router;
