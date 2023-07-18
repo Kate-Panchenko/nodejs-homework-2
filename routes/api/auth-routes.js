@@ -23,6 +23,13 @@ router.post(
 	authController.login
 );
 
+router.get("/verify/:verificationToken", authController.verifyEmail);
+router.post(
+	"/verify",
+	validateBody(schemasUser.userEmailSchema),
+	authController.resendVerifyEmail
+);
+
 // logout
 router.post("/logout", authenticate, authController.logout);
 
