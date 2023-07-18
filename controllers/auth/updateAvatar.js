@@ -1,38 +1,83 @@
 const path = require("path");
 const { User } = require("../../models");
-const { HttpError } = require("../../helpers");
-const Jimp = require("jimp");
+const { HttpError, processAvatar } = require("../../utils");
 const fs = require("fs/promises");
+const Jimp = require("jimp");
 
 const updateAvatar = async (req, res, next) => {
-	const { filename } = req.file;
 	const { _id } = req.user;
-	const newFileName = `${_id}_${filename}`;
+
+	const { path: tempUpload, originalname } = req.file;
+
+	const avatar = await Jimp.read(tempUpload);
+	avatar.resize(250, 250).writeAsync(tempUpload);
+
+	const filename = `${_id}_${originalname}`;
 
 	if (!filename) {
 		throw HttpError(400, "File is require!");
 	}
 
-	const tmpPath = path.resolve(__dirname, "../../", "tmp", filename);
-	const avatarsDir = path.resolve(
-		__dirname,
-		"../../",
-		"public",
-		"avatars",
-		newFileName
-	);
+	const resultUpload = path.join(avatarsDir, filename);
 
-	const image = await Jimp.read(tmpPath);
-	await image.resize(250, 250).quality(60).writeAsync(avatarsDir);
+	await fs.rename(tempUpload, resultUpload);
 
-	const avatarURL = path.join("avatars", newFileName);
-	await User.findByIdAndUpdate(_id, { avatarUrl: avatarURL });
+	const avatarURL = path.join("avatars", filename);
 
-	await fs.unlink(tmpPath);
+	await User.findByIdAndUpdate(_id, { avatarURL });
 
 	res.json({
 		avatarURL,
 	});
+
+	// const { filename } = req.file;
+	// const { _id } = req.user;
+	// const newFileName = `${_id}_${filename}`;
+
+	// if (!filename) {
+	// 	throw HttpError(400, "File is require!");
+	// }
+
+	// const tmpPath = path.resolve(__dirname, "../../", "tmp", filename);
+	// const avatarsDir = path.resolve(
+	// 	__dirname,
+	// 	"../../",
+	// 	"public",
+	// 	"avatars",
+	// 	newFileName
+	// );
+
+	// const image = await Jimp.read(tmpPath);
+	// await image.resize(250, 250).quality(60).writeAsync(avatarsDir);
+
+	// const avatarURL = path.join("avatars", newFileName);
+	// await User.findByIdAndUpdate(_id, { avatarUrl: avatarURL });
+
+	// await fs.unlink(tmpPath);
+
+	// res.json({
+	// 	avatarURL,
+	// });
 };
 
 module.exports = updateAvatar;
+
+// const { _id } = req.user;
+
+// const { path: tmpUpload, originalname } = req.file;
+
+// const [extention] = originalname.split(".").reverse();
+
+// const newFileName = `${_id}.${extention}`;
+
+// const resultUpload = path.join(avatarsDir, newFileName);
+
+// await fs.rename(tmpUpload, resultUpload);
+
+// const avatarUrl = path.join("avatars", newFileName);
+
+// processAvatar(resultUpload);
+
+// await User.findByIdAndUpdate(_id, { avatarUrl });
+
+// res.json({ avatarUrl });

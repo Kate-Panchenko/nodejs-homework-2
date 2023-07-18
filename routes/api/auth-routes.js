@@ -8,6 +8,7 @@ const { validateBody, authenticate, upload } = require("../../middleware");
 
 const router = express.Router();
 
+// signup
 router.post(
 	"/register",
 	validateBody(schemasUser.userRegisterSchema),
@@ -15,13 +16,19 @@ router.post(
 	authController.register
 );
 
+// signin
 router.post(
 	"/login",
 	validateBody(schemasUser.userLoginSchema),
 	authController.login
 );
+
+// logout
 router.post("/logout", authenticate, authController.logout);
+
+// get current
 router.get("/current", authenticate, authController.getCurrent);
+
 router.patch(
 	"/:id/subscription",
 	authenticate,
