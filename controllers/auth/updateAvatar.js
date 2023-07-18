@@ -1,6 +1,6 @@
 const path = require("path");
 const { User } = require("../../models");
-const { HttpError, processAvatar } = require("../../utils");
+const { HttpError } = require("../../utils");
 const fs = require("fs/promises");
 const Jimp = require("jimp");
 
@@ -31,35 +31,6 @@ const updateAvatar = async (req, res, next) => {
 	res.json({
 		avatarURL,
 	});
-
-	// const { filename } = req.file;
-	// const { _id } = req.user;
-	// const newFileName = `${_id}_${filename}`;
-
-	// if (!filename) {
-	// 	throw HttpError(400, "File is require!");
-	// }
-
-	// const tmpPath = path.resolve(__dirname, "../../", "tmp", filename);
-	// const avatarsDir = path.resolve(
-	// 	__dirname,
-	// 	"../../",
-	// 	"public",
-	// 	"avatars",
-	// 	newFileName
-	// );
-
-	// const image = await Jimp.read(tmpPath);
-	// await image.resize(250, 250).quality(60).writeAsync(avatarsDir);
-
-	// const avatarURL = path.join("avatars", newFileName);
-	// await User.findByIdAndUpdate(_id, { avatarUrl: avatarURL });
-
-	// await fs.unlink(tmpPath);
-
-	// res.json({
-	// 	avatarURL,
-	// });
 };
 
 module.exports = updateAvatar;
